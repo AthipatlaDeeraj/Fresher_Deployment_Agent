@@ -5,6 +5,7 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+ris_cols.txt
 
 # Environments
 .env
@@ -12,13 +13,15 @@ htmlcov/
 env/
 venv/
 ENV/
+myenv/
 
 # Logs
 logs/
 *.log
 
-# Application Output
+# Data & Output
 output/
+*.xlsx
 
 # OS generated files
 .DS_Store

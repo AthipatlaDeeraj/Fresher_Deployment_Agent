@@ -34,10 +34,6 @@ def generate_recommendations(decided_df: pd.DataFrame, ris_data: pd.DataFrame, s
     
     recommendations = []
     
-    # Ensure SO data has the necessary columns (e.g., project_id, skills, requirement_count)
-    so_has_project = 'project_id' in so_data.columns
-    so_has_skills = 'skills' in so_data.columns
-    
     for _, row in decided_df.iterrows():
         project_id = row['project_id']
         total_hc = row.get('total_headcount', 0)
@@ -46,26 +42,21 @@ def generate_recommendations(decided_df: pd.DataFrame, ris_data: pd.DataFrame, s
         r4_flag = row.get('R4', False)
         
         # 1. Suggested Fresher Count
-        # Approximation: how many people needed to cover the junior gap % of current total headcount
         suggested_fresher_count = 0
         if junior_gap_pct > 0 and total_hc > 0:
             suggested_fresher_count = math.ceil((junior_gap_pct / 100.0) * total_hc)
             
-        # 2. Extract skills from SO
-        so_skills = set()
-        if so_has_project and so_has_skills:
-            so_skills = extract_dominant_skills(so_data, project_id, 'skills')
-            
-        # 3. Extract skills from RIS
+        # 2. Extract skills
+        so_skills = extract_dominant_skills(so_data, project_id, 'skills')
         ris_skills = extract_dominant_skills(ris_data, project_id, 'skills')
         
-        # Determine relevant skills for deployment (from SO data if available)
+        # Determine relevant skills for deployment (from SO data)
         relevant_skills = ", ".join(so_skills) if so_skills else "N/A"
+        primary_skills = ", ".join(ris_skills) if ris_skills else "N/A"
         
         # Determine training suggestions
         training_suggestions = "N/A"
         if r4_flag:
-            # Combine RIS and SO dominant skills to form training themes
             combined_skills = ris_skills.union(so_skills)
             if combined_skills:
                 training_suggestions = f"Focus training on: {', '.join(combined_skills)}"
@@ -74,9 +65,12 @@ def generate_recommendations(decided_df: pd.DataFrame, ris_data: pd.DataFrame, s
                 
         rec = {
             'project_id': project_id,
+            'junior_pct': row.get('junior_pct', 0),
+            'junior_gap': row.get('junior_gap', 0),
             'deployment_flag': 'Yes' if r3_flag else 'No',
             'suggested_fresher_count': suggested_fresher_count if r3_flag else 0,
             'relevant_skills': relevant_skills,
+            'primary_skills': primary_skills,
             'training_suggestions': training_suggestions
         }
         recommendations.append(rec)

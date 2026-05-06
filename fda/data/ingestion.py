@@ -2,21 +2,37 @@ import pandas as pd
 from fda.config import settings
 from fda.core.logger import logger
 
+def map_columns(df: pd.DataFrame, col_map: dict) -> pd.DataFrame:
+    """Maps columns from synthetic data names to internal system names."""
+    available_cols = df.columns.tolist()
+    rename_dict = {}
+    
+    for internal_name, actual_name in col_map.items():
+        if actual_name in available_cols:
+            rename_dict[actual_name] = internal_name
+        else:
+            # Try a fuzzy match if exact match fails
+            clean_actual = actual_name.strip().lower()
+            found = False
+            for col in available_cols:
+                if col.strip().lower() == clean_actual:
+                    rename_dict[col] = internal_name
+                    found = True
+                    break
+            if not found:
+                logger.warning(f"Column '{actual_name}' (mapped to '{internal_name}') not found in dataframe.")
+    
+    return df.rename(columns=rename_dict)
+
 def load_ris_data(file_path: str = settings.RIS_DATA_FILE) -> pd.DataFrame:
     """Loads RIS data from the specified Excel file."""
     logger.info(f"Loading RIS data from {file_path}")
     try:
-        # Load all columns as string to avoid dtype issues initially
         df = pd.read_excel(file_path, dtype=str)
         logger.info(f"Successfully loaded {len(df)} records from RIS data.")
         
-        # Clean column names (lowercase, replace spaces with underscores)
-        df.columns = [str(c).strip().lower().replace(' ', '_') for c in df.columns]
-        
-        # Map columns if they don't exactly match requirements, but user said 
-        # "Create an internal clean dataframe with these fields."
-        # We will assume the file might have slightly different names, so we'll try to map common variations
-        # Or we assume the file already has these exact names or close to them.
+        # Apply mapping
+        df = map_columns(df, settings.RIS_COL_MAP)
         
         # Ensure allocation percent is numeric
         if 'allocation_percent' in df.columns:
@@ -34,8 +50,8 @@ def load_so_data(file_path: str = settings.SO_DATA_FILE) -> pd.DataFrame:
         df = pd.read_excel(file_path, dtype=str)
         logger.info(f"Successfully loaded {len(df)} records from SO data.")
         
-        # Clean column names
-        df.columns = [str(c).strip().lower().replace(' ', '_') for c in df.columns]
+        # Apply mapping
+        df = map_columns(df, settings.SO_COL_MAP)
         return df
     except Exception as e:
         logger.error(f"Failed to load SO data: {str(e)}")

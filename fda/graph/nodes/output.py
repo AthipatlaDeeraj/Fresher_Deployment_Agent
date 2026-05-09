@@ -1,5 +1,5 @@
 from fda.graph.state import FDAState
-from fda.output.exporter import export_pyramid_report, export_suggestions_report
+from fda.exporter import export_pyramid_report, export_suggestions_report
 from fda.core.logger import logger
 
 def output_node(state: FDAState) -> FDAState:

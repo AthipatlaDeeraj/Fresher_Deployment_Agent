@@ -9,9 +9,7 @@ pyproject.toml
 
 # Environments
 .env
-.venv
-env/
-myenv/
+myenv
 ENV/
 
 # Logs

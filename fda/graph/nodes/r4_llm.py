@@ -1,6 +1,5 @@
 from fda.graph.state import FDAState
-from fda.llm.sanitization import sanitize_project_data
-from fda.llm.r4_agent import generate_training_suggestions
+from fda.llm_agents import sanitize_project_data, generate_training_suggestions
 from fda.services.recommendation_engine import extract_skills_for_project
 from fda.core.logger import logger
 

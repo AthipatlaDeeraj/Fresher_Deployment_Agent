@@ -1,48 +1,97 @@
-# Fresher Deployment Agent (FDA)
+# 🚀 Fresher Deployment Agent (FDA) - LangGraph Edition
 
-FDA is a production-grade Decision Intelligence System that ingests synthetic resource (RIS) and staffing demand (SO) data to analyze team compositions, calculate pyramid ratios, and provide deployment and training recommendations based on modular rules.
+FDA is a production-grade **Decision Intelligence System** that leverages **LangGraph** and **Groq-powered LLMs** to automate IT resource management. It analyzes team pyramids, calculates deployment readiness, and generates intelligent training recommendations for fresher intake.
 
-## Architecture
+---
 
-The system is built using Clean Architecture principles to ensure modularity, scalability, and ease of testing.
+## 🏗️ System Architecture
 
-* **config/**: Contains `settings.py` for global configuration (thresholds, paths) and `grade_band_map.csv` for data mapping.
-* **core/**: Contains centralized components like `logger.py` to ensure consistent logging across the application.
-* **data/**:
-  * `ingestion.py`: Handles loading raw data from external Excel files using Pandas.
-  * `validation.py`: Filters active resources (based on allocation, status) and maps grades to standard bands (Junior, Mid, Senior), rejecting invalid data.
-* **engine/**:
-  * `aggregation.py`: Groups validated data by project and calculates headcounts, ratios, and target gaps.
-  * `decision.py`: The core rule engine executor. It applies each configured rule to the aggregated data.
-  * `rules/`: A pluggable rule system. `base.py` defines the `Rule` interface. Each rule (e.g., R1, R2) is self-contained.
-  * `recommendation.py`: Consumes decision outputs and SO data to generate specific deployment numbers and training suggestions based on dominant skills.
-* **output/**: `exporter.py` handles writing the final analyzed datasets into the required Excel formats.
-* **tests/**: `pytest` based unit and pipeline tests to verify mathematical correctness and data flow.
-* **main.py**: The orchestrator script that links all layers together.
+The project has been refactored into a state-driven **LangGraph** architecture, separating data processing, business logic, and AI reasoning into modular nodes.
 
-## Setup Instructions
-
-1. Ensure you have Python 3.9+ installed.
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Ensure the synthetic data files (`RIS_Synthetic.xlsx`, `SO_Ageing_Synthetic.xlsx`) are in the root directory (parent of `fda`).
-
-## Execution Instructions
-
-Run the main pipeline:
-```bash
-python fda/main.py
+```mermaid
+graph TD
+    A[Ingest Node] --> B[Validate Node]
+    B --> C[Process Node]
+    C --> D[Aggregate Node]
+    D --> E[Pyramid Calc Node]
+    E --> F[Rule Engine Node]
+    F --> G[Decision Gate]
+    G -- "Gap Detected" --> H[R3 LLM Node]
+    G -- "No Gap" --> J[Recommendation Node]
+    H --> I[R4 LLM Node]
+    I --> J
+    J --> K[Output Node]
+    K --> L((END))
 ```
 
-Run tests:
+---
+
+## 🛠️ Tech Stack
+
+*   **Orchestration**: [LangGraph](https://github.com/langchain-ai/langgraph) for state-managed workflows.
+*   **LLM Intelligence**: [Groq](https://groq.com/) (Llama 3.1 8B Instant) for high-speed skill analysis.
+*   **API Framework**: [FastAPI](https://fastapi.tiangolo.com/) for serving the pipeline.
+*   **Data Processing**: [Pandas](https://pandas.pydata.org/) for high-performance Excel manipulation.
+*   **Parsing**: [Pydantic](https://docs.pydantic.dev/) for strict JSON schema enforcement via Structured Outputs.
+
+---
+
+## 📂 Project Structure
+
+*   **`fda/`**: Core package containing logic.
+    *   **`graph/`**: The core graph definition and orchestration nodes.
+    *   **`engine/`**: Business logic for pyramid rules and deployment math.
+    *   **`llm_agents.py`**: Groq-powered agents for skill suitability (R3) and training design (R4).
+    *   **`exporter.py`**: Excel report generation logic.
+    *   **`test.py`**: Consolidated test suite.
+*   **`main.py`**: FastAPI server exposing the `/run-pipeline` endpoint.
+
+---
+
+## 🚦 Getting Started
+
+### 1. Prerequisites
+*   Python 3.10+
+*   Groq API Key (Sign up at [Groq Cloud](https://console.groq.com/))
+
+### 2. Installation
 ```bash
-pytest fda/tests/
+# Activate your environment
+.\myenv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-## Output
+### 3. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
 
-The application will generate a `logs/` folder containing execution logs, and an `output/` folder containing:
-1. `Pyramid_Analysis_Report.xlsx`: Contains aggregated project counts, ratios, gaps, and triggered flags.
-2. `Deployment_Training_Suggestions.xlsx`: Contains project-level fresher deployment recommendations and skill training suggestions.
+### 4. Running the Pipeline
+Start the FastAPI server:
+```bash
+uvicorn main:app --port 8010 --reload
+```
+Open your browser to `http://127.0.0.1:8010/docs` to execute the pipeline via the Interactive Swagger UI.
+
+---
+
+## 📊 Outputs
+
+The agent generates two timestamped reports in the `output/` folder:
+
+1.  **`FDA_PyramidReport_YYYYMMDD_HHMMSS.xlsx`**: Detailed health check of project pyramids, showing junior %, gaps, and triggered rule flags (R1/R2).
+2.  **`FDA_Suggestions_YYYYMMDD_HHMMSS.xlsx`**: AI-driven deployment readiness scores and customized training curriculums for every project.
+
+---
+
+## 📝 Business Logic (Rules)
+
+*   **R1 (Low Junior Warning)**: Triggers if a project has less than 20% juniors.
+*   **R2 (Over-Indexed Mid)**: Triggers if a project has more than 50% mid-level resources.
+*   **Deployment Readiness Score**: A weighted calculation (40% Gap, 30% Skill Match, 20% Team Size, 10% Role Match).
+
+---
+*Developed for Fresher Deployment Optimization.*

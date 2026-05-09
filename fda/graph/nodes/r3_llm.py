@@ -1,6 +1,5 @@
 from fda.graph.state import FDAState
-from fda.llm.sanitization import sanitize_project_data
-from fda.llm.r3_agent import analyze_deployment_opportunity
+from fda.llm_agents import sanitize_project_data, analyze_deployment_opportunity
 from fda.services.recommendation_engine import extract_skills_for_project
 from fda.core.logger import logger
 

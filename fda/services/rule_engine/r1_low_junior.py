@@ -1,4 +1,4 @@
-from fda.engine.rules.base import Rule
+from fda.services.rule_engine.base import Rule
 import pandas as pd
 from fda.config import settings
 

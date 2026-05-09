@@ -21,11 +21,10 @@ TARGET_MID_PCT = 20.0
 TARGET_SENIOR_PCT = 1.0
 
 # Rule Thresholds
-R2_HIGH_FRESHER_THRESHOLD_PCT = 85.0
-
-# Active Resource Statuses
-ACTIVE_EMPLOYEE_STATUSES = ["Active", "Deployed", "Bench"]
-ACTIVE_PROJECT_STATUSES = ["Active", "In Progress", "Green", "Yellow", "Red"]
+# R2: High Fresher Intake
+R2_HIGH_FRESHER_THRESHOLD_PCT = 85.0    # Junior% > this → high intake flag
+R2_SMALL_TEAM_THRESHOLD = 10           # Team size <= this is considered "small"
+R2_SMALL_TEAM_JUNIOR_RATIO = 0.667     # 2/3 of small team being junior triggers flag
 
 # Column Mappings (Expected -> Actual in Synthetic Data)
 RIS_COL_MAP = {
@@ -48,6 +47,9 @@ RIS_COL_MAP = {
 SO_COL_MAP = {
     'project_id': 'Project ID',
     'skills': 'Primary Skill Description',
+    'secondary_skills': 'Secondary Skill Description',
+    'technology': 'Technology',
+    'project_role': 'Project Role',
     'rm': 'Responsible for Staffing Name'
 }
 

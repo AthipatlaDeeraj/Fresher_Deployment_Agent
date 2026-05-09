@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
-from fda.engine.rules.r1_low_junior import R1LowJuniorRatio
-from fda.engine.rules.r2_high_fresher import R2HighFresherIntake
-from fda.engine.rules.r3_deployment import R3FresherDeployment
+from fda.services.rule_engine.r1_low_junior import R1LowJuniorRatio
+from fda.services.rule_engine.r2_high_fresher import R2HighFresherIntake
+from fda.services.rule_engine.r3_deployment import R3FresherDeployment
 from fda.config import settings
 
 def test_r1_low_junior():

@@ -3,7 +3,7 @@ from fda.config import settings
 from fda.core.logger import logger
 
 def map_columns(df: pd.DataFrame, col_map: dict) -> pd.DataFrame:
-    """Maps columns from synthetic data names to internal system names."""
+    """Maps columns from synthetic data names to internal system names via exact + fuzzy match."""
     available_cols = df.columns.tolist()
     rename_dict = {}
     
@@ -11,7 +11,7 @@ def map_columns(df: pd.DataFrame, col_map: dict) -> pd.DataFrame:
         if actual_name in available_cols:
             rename_dict[actual_name] = internal_name
         else:
-            # Try a fuzzy match if exact match fails
+            # Fuzzy match: strip whitespace and case-insensitive compare
             clean_actual = actual_name.strip().lower()
             found = False
             for col in available_cols:
@@ -20,37 +20,33 @@ def map_columns(df: pd.DataFrame, col_map: dict) -> pd.DataFrame:
                     found = True
                     break
             if not found:
-                logger.warning(f"Column '{actual_name}' (mapped to '{internal_name}') not found in dataframe.")
+                logger.warning(f"Column '{actual_name}' (→'{internal_name}') not found in dataframe.")
     
     return df.rename(columns=rename_dict)
 
 def load_ris_data(file_path: str = settings.RIS_DATA_FILE) -> pd.DataFrame:
-    """Loads RIS data from the specified Excel file."""
+    """Loads RIS data from the Excel file and applies internal column mapping."""
     logger.info(f"Loading RIS data from {file_path}")
     try:
         df = pd.read_excel(file_path, dtype=str)
         logger.info(f"Successfully loaded {len(df)} records from RIS data.")
-        
-        # Apply mapping
         df = map_columns(df, settings.RIS_COL_MAP)
         
-        # Ensure allocation percent is numeric
+        # Coerce allocation to numeric
         if 'allocation_percent' in df.columns:
             df['allocation_percent'] = pd.to_numeric(df['allocation_percent'], errors='coerce').fillna(0)
-            
+        
         return df
     except Exception as e:
         logger.error(f"Failed to load RIS data: {str(e)}")
         raise
 
 def load_so_data(file_path: str = settings.SO_DATA_FILE) -> pd.DataFrame:
-    """Loads Staffing Demand (SO) data from the specified Excel file."""
+    """Loads SO Ageing data from the Excel file and applies internal column mapping."""
     logger.info(f"Loading SO data from {file_path}")
     try:
         df = pd.read_excel(file_path, dtype=str)
         logger.info(f"Successfully loaded {len(df)} records from SO data.")
-        
-        # Apply mapping
         df = map_columns(df, settings.SO_COL_MAP)
         return df
     except Exception as e:

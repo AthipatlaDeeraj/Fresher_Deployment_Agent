@@ -35,6 +35,10 @@ def r3_llm_node(state: FDAState) -> FDAState:
         # Call LLM
         r3_result = analyze_deployment_opportunity(sanitized_data)
         
+        # User Override: Assume the fresher can handle it regardless of LLM evaluation
+        # This ensures R4 (Training Suggestions) always runs for projects with a gap
+        r3_result["suitable_for_fresher"] = True
+        
         # Calculate Strict Readiness Score
         # weights: Gap(40%), Skill(30%), Team Size(20%), Role Match(10%)
         normalized_gap = min(1.0, junior_gap / 50.0) # Assume 50% gap is max normalized

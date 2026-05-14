@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
-from fda.config import settings
-from fda.core.logger import logger
+from fda import settings
+from fda.logger import logger
 import os
 
 def get_timestamped_filename(prefix: str) -> str:
@@ -71,7 +71,6 @@ def export_suggestions_report(df: pd.DataFrame, ris_data: pd.DataFrame):
     # Add pyramid metrics
     # Note: we should pass the aggregated data here or re-calculate. For simplicity, we assume columns exist or add Audit Date.
     df['Audit Run Date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    df['Pyramid Health Status'] = df['deployment_flag'].apply(lambda x: 'Action Required' if x == 'Yes' else 'Stable')
 
     schema_map = {
         'project_id': 'Project ID',
@@ -79,12 +78,14 @@ def export_suggestions_report(df: pd.DataFrame, ris_data: pd.DataFrame):
         'rm': 'RM',
         'junior_pct': 'Junior %',
         'junior_gap': 'Junior Gap',
-        'Pyramid Health Status': 'Pyramid Health Status',
+        'pyramid_health': 'Pyramid Health Status',
         'deployment_flag': 'Deployment Opportunity Flag',
         'suggested_fresher_count': 'Suggested Fresher Intake Count',
         'relevant_skills': 'Relevant Technologies',
         'primary_skills': 'Primary Skills Present',
-        'training_suggestions': 'Training Theme',
+        'training_track': 'Training Track Name',
+        'training_curriculum': 'Curriculum Summary',
+        'training_skills': 'Skills Covered',
         'training_flag': 'Training Suggestion Flag',
         'deployment_readiness_score': 'Deployment Readiness Score',
         'Audit Run Date': 'Audit Run Date'

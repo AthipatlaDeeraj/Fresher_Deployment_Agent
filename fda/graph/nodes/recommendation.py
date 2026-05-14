@@ -2,7 +2,7 @@ import pandas as pd
 import math
 from fda.graph.state import FDAState
 from fda.services.recommendation_engine import extract_skills_for_project
-from fda.core.logger import logger
+from fda.logger import logger
 
 def recommendation_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: recommendation_node ---")
@@ -35,13 +35,17 @@ def recommendation_node(state: FDAState) -> FDAState:
         if is_r3 and total_hc > 0:
             suggested_fresher_count = math.ceil((junior_gap_pct / 100.0) * total_hc)
             
-        ris_skills = extract_skills_for_project(ris_df, project_name, ris_skill_cols)
-        so_skills = extract_skills_for_project(so_df, project_name, so_skill_cols)
+        project_ids = row.get('project_id_list', [row.get('project_id', 'N/A')])
+        ris_skills = extract_skills_for_project(ris_df, project_ids, project_name, ris_skill_cols)
+        so_skills = extract_skills_for_project(so_df, project_ids, project_name, so_skill_cols)
         
         relevant_skills = ", ".join(so_skills) if so_skills else "N/A"
         primary_skills_present = ", ".join(ris_skills) if ris_skills else "N/A"
         
-        training_theme = r4_result.get("primary_theme", "N/A")
+        track_name = r4_result.get("track_name", "N/A")
+        curriculum = r4_result.get("curriculum_summary", "N/A")
+        skills_cov = r4_result.get("skills_covered", [])
+        skills_str = ", ".join(skills_cov) if skills_cov else "N/A"
         training_flag = "YES" if r4_result.get("training_required", False) else "NO"
         
         readiness_score = r3_result.get("deployment_readiness_score", 0.0)
@@ -56,7 +60,9 @@ def recommendation_node(state: FDAState) -> FDAState:
             'suggested_fresher_count': suggested_fresher_count if is_r3 else 0,
             'relevant_skills': relevant_skills,
             'primary_skills': primary_skills_present,
-            'training_suggestions': training_theme,
+            'training_track': track_name,
+            'training_curriculum': curriculum,
+            'training_skills': skills_str,
             'training_flag': training_flag,
             'deployment_readiness_score': readiness_score
         })

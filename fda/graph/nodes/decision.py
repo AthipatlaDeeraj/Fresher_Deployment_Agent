@@ -1,5 +1,5 @@
 from fda.graph.state import FDAState
-from fda.core.logger import logger
+from fda.logger import logger
 
 def decision_node(state: FDAState) -> FDAState:
     """

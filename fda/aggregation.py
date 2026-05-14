@@ -1,6 +1,6 @@
 import pandas as pd
-from fda.config import settings
-from fda.core.logger import logger
+from fda import settings
+from fda.logger import logger
 
 def aggregate_by_project(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -21,6 +21,7 @@ def aggregate_by_project(df: pd.DataFrame) -> pd.DataFrame:
     agg_cols = {'total_headcount': ('project_name', 'count')}
     if 'project_id' in df.columns:
         agg_cols['project_id'] = ('project_id', 'first')
+        agg_cols['project_id_list'] = ('project_id', lambda x: list(set(x)))
     if 'rm' in df.columns:
         agg_cols['rm'] = ('rm', 'first')
     

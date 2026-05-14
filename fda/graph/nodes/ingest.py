@@ -1,6 +1,6 @@
 from fda.graph.state import FDAState
-from fda.data.ingestion import load_ris_data, load_so_data
-from fda.core.logger import logger
+from fda.ingestion import load_ris_data, load_so_data
+from fda.logger import logger
 
 def ingest_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: ingest_node ---")

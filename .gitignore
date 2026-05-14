@@ -11,6 +11,7 @@ pyproject.toml
 .env
 myenv
 ENV/
+.venv/
 
 # Logs
 logs/

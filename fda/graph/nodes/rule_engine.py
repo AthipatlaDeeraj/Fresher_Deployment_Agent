@@ -1,7 +1,7 @@
 from fda.graph.state import FDAState
 from fda.services.rule_engine.r1_low_junior import R1LowJuniorRatio
 from fda.services.rule_engine.r2_high_fresher import R2HighFresherIntake
-from fda.core.logger import logger
+from fda.logger import logger
 
 def rule_engine_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: rule_engine_node ---")

@@ -2,9 +2,9 @@ import os
 from pathlib import Path
 
 # Base directories
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
-CONFIG_DIR = BASE_DIR / "config"
+CONFIG_DIR = BASE_DIR
 OUTPUT_DIR = ROOT_DIR / "output"
 
 # Create output directory if it doesn't exist
@@ -46,6 +46,7 @@ RIS_COL_MAP = {
 
 SO_COL_MAP = {
     'project_id': 'Project ID',
+    'project_name': 'Project Name',
     'skills': 'Primary Skill Description',
     'secondary_skills': 'Secondary Skill Description',
     'technology': 'Technology',

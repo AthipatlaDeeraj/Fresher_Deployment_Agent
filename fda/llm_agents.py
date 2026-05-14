@@ -5,7 +5,7 @@ from typing import Dict, Any, List
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from pydantic import BaseModel, Field
-from fda.core.logger import logger
+from fda.logger import logger
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -90,10 +90,12 @@ def fallback_r3_logic(data: Dict[str, Any]) -> Dict[str, Any]:
 
 # ── R4 Agent ─────────────────────────────────────────────────────────────────
 
-class TrainingTheme(BaseModel):
+class TrainingTrack(BaseModel):
     training_required: bool = Field(description="Whether specific training is required based on the skill gap")
-    primary_theme: str = Field(description="The main training topic suggested")
-    secondary_topics: List[str] = Field(description="List of supplementary topics")
+    track_name: str = Field(description="The logical name of the training track (e.g. Fullstack Web Development)")
+    priority: str = Field(description="High/Medium/Low priority based on the number of open roles")
+    skills_covered: List[str] = Field(description="The specific skills from the SO data clustered here")
+    curriculum_summary: str = Field(description="A 1-sentence description of what a fresher will learn in this track")
     reasoning: str = Field(description="Why this training is suggested")
 
 def generate_training_suggestions(sanitized_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -108,17 +110,20 @@ def generate_training_suggestions(sanitized_data: Dict[str, Any]) -> Dict[str, A
     try:
         # Use a model that supports structured outputs well
         llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.2)
-        structured_llm = llm.with_structured_output(TrainingTheme)
+        structured_llm = llm.with_structured_output(TrainingTrack)
 
         prompt = PromptTemplate.from_template(
             """
-            You are a technical training coordinator. Based on the project data, suggest a training theme for a new junior employee.
-
+            You are a Technical Training Architect. Look at the demanded skills and current team skills below.
+            Instead of just listing them, group them into a logical **Training Track** using a Skill Taxonomy.
+            (e.g., Backend, Frontend, DevOps, Data Science, Enterprise Java, etc.)
+            
             Project Data:
             {data}
 
             If "demanded_skills" is empty, suggest "General Fresher Onboarding".
-            Otherwise, create a curriculum based on "demanded_skills" and "current_team_skills".
+            Otherwise, create a structured curriculum track based on the semantic clustering of these skills.
+            Provide a track name, priority, a list of specific skills covered in this track, and a 1-sentence curriculum summary.
             """
         )
 
@@ -126,7 +131,7 @@ def generate_training_suggestions(sanitized_data: Dict[str, Any]) -> Dict[str, A
 
         logger.info(f"AUDIT LOG - R4 LLM Input for {sanitized_data.get('project_name')}: {json.dumps(sanitized_data)}")
 
-        result: TrainingTheme = chain.invoke({"data": json.dumps(sanitized_data, indent=2)})
+        result: TrainingTrack = chain.invoke({"data": json.dumps(sanitized_data, indent=2)})
         output_dict = result.model_dump()
 
         logger.info(f"AUDIT LOG - R4 LLM Output: {json.dumps(output_dict)}")
@@ -140,13 +145,19 @@ def fallback_r4_logic(data: Dict[str, Any]) -> Dict[str, Any]:
     """Fallback rule-based logic if LLM fails or is unavailable."""
     all_skills = set(data["current_team_skills"]).union(set(data["demanded_skills"]))
     if all_skills:
-        theme = f"Foundational training on: {', '.join(all_skills)}"
+        track = "Foundational Technical Training"
+        summary = f"Core fundamentals focusing on existing and demanded technologies."
+        skills = list(all_skills)
     else:
-        theme = "General Fresher Onboarding & Project Orientation"
+        track = "General Fresher Onboarding"
+        summary = "Standard project orientation and onboarding."
+        skills = []
 
     return {
         "training_required": True,
-        "primary_theme": theme,
-        "secondary_topics": [],
+        "track_name": track,
+        "priority": "Medium",
+        "skills_covered": skills,
+        "curriculum_summary": summary,
         "reasoning": "Fallback deterministic logic used."
     }

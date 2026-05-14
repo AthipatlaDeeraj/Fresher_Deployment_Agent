@@ -1,12 +1,12 @@
 import pytest
 import pandas as pd
-from fda.engine.aggregation import aggregate_by_project
-from fda.engine.decision import execute_rules
-from fda.engine.recommendation import generate_recommendations
+from fda.aggregation import aggregate_by_project
+from fda.decision import execute_rules
+from fda.services.recommendation_engine import generate_recommendations
 from fda.services.rule_engine.r1_low_junior import R1LowJuniorRatio
 from fda.services.rule_engine.r2_high_fresher import R2HighFresherIntake
 from fda.services.rule_engine.r3_deployment import R3FresherDeployment
-from fda.config import settings
+from fda import settings
 
 # ── Fixtures ─────────────────────────────────────────────────────────────
 

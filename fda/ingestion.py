@@ -1,6 +1,6 @@
 import pandas as pd
-from fda.config import settings
-from fda.core.logger import logger
+from fda import settings
+from fda.logger import logger
 
 def map_columns(df: pd.DataFrame, col_map: dict) -> pd.DataFrame:
     """Maps columns from synthetic data names to internal system names via exact + fuzzy match."""

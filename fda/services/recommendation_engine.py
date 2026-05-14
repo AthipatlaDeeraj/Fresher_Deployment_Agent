@@ -1,14 +1,32 @@
 import pandas as pd
 import math
-from fda.core.logger import logger
-from fda.config import settings
+from fda.logger import logger
+from fda import settings
 
-def extract_skills_for_project(df: pd.DataFrame, project_name: str, skill_cols: list) -> set:
+def extract_skills_for_project(df: pd.DataFrame, project_id: str, project_name: str, skill_cols: list) -> set:
     """
     Extracts dominant skills from multiple skill columns for a given project.
     Parses comma-separated skills in each column and returns the top-N most frequent.
     """
-    proj_data = df[df['project_name'] == project_name] if 'project_name' in df.columns else pd.DataFrame()
+    proj_data = pd.DataFrame()
+    
+    def clean_id(pid):
+        if pd.isna(pid) or pid == 'N/A': return 'N/A'
+        val = str(pid).strip()
+        return val[:-2] if val.endswith('.0') else val
+
+    if not isinstance(project_id, list):
+        project_ids = [project_id]
+    else:
+        project_ids = project_id
+        
+    cleaned_target_ids = [clean_id(pid) for pid in project_ids if clean_id(pid) != 'N/A']
+
+    if 'project_id' in df.columns and cleaned_target_ids:
+        proj_data = df[df['project_id'].apply(clean_id).isin(cleaned_target_ids)]
+    
+    if proj_data.empty and 'project_name' in df.columns and pd.notna(project_name) and project_name != 'N/A':
+        proj_data = df[df['project_name'].astype(str).str.strip() == str(project_name).strip()]
     
     if proj_data.empty:
         return set()
@@ -61,10 +79,10 @@ def generate_recommendations(decided_df: pd.DataFrame, ris_data: pd.DataFrame, s
             suggested_fresher_count = math.ceil((junior_gap_pct / 100.0) * total_hc)
         
         # ── Extract skills from SO (Relevant Technologies for deployment) ────
-        so_skills = extract_skills_for_project(so_data, project_name, so_skill_cols)
+        so_skills = extract_skills_for_project(so_data, project_id, project_name, so_skill_cols)
         
         # ── Extract skills from RIS (Primary Skills Present) ─────────────────
-        ris_skills = extract_skills_for_project(ris_data, project_name, ris_skill_cols)
+        ris_skills = extract_skills_for_project(ris_data, project_id, project_name, ris_skill_cols)
         
         relevant_skills = ", ".join(so_skills) if so_skills else "N/A"
         primary_skills_present = ", ".join(ris_skills) if ris_skills else "N/A"

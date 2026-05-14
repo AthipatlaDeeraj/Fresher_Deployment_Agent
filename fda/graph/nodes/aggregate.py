@@ -1,6 +1,6 @@
 import pandas as pd
 from fda.graph.state import FDAState
-from fda.core.logger import logger
+from fda.logger import logger
 
 def aggregate_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: aggregate_node ---")
@@ -17,6 +17,7 @@ def aggregate_node(state: FDAState) -> FDAState:
     agg_cols = {'total_headcount': ('project_name', 'count')}
     if 'project_id' in df.columns:
         agg_cols['project_id'] = ('project_id', 'first')
+        agg_cols['project_id_list'] = ('project_id', lambda x: list(set(x)))
     if 'rm' in df.columns:
         agg_cols['rm'] = ('rm', 'first')
         

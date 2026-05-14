@@ -1,7 +1,7 @@
 from fda.graph.state import FDAState
 from fda.llm_agents import sanitize_project_data, generate_training_suggestions
 from fda.services.recommendation_engine import extract_skills_for_project
-from fda.core.logger import logger
+from fda.logger import logger
 
 def r4_llm_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: r4_llm_node ---")
@@ -27,8 +27,9 @@ def r4_llm_node(state: FDAState) -> FDAState:
         is_high_intake = bool(row.get('R2', False))
         
         if is_suitable or is_high_intake:
-            ris_skills = extract_skills_for_project(ris_df, project_name, ris_skill_cols)
-            so_skills = extract_skills_for_project(so_df, project_name, so_skill_cols)
+            project_ids = row.get('project_id_list', [row.get('project_id', 'N/A')])
+            ris_skills = extract_skills_for_project(ris_df, project_ids, project_name, ris_skill_cols)
+            so_skills = extract_skills_for_project(so_df, project_ids, project_name, so_skill_cols)
             
             sanitized_data = sanitize_project_data(row, ris_skills, so_skills)
             r4_result = generate_training_suggestions(sanitized_data)

@@ -1,6 +1,6 @@
 import pandas as pd
-from fda.engine.rules import ACTIVE_RULES
-from fda.core.logger import logger
+from fda.services.rule_engine import ACTIVE_RULES
+from fda.logger import logger
 
 def execute_rules(agg_df: pd.DataFrame, so_data: pd.DataFrame = None) -> pd.DataFrame:
     """

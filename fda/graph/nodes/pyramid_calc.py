@@ -1,7 +1,7 @@
 import pandas as pd
 from fda.graph.state import FDAState
-from fda.config import settings
-from fda.core.logger import logger
+from fda import settings
+from fda.logger import logger
 
 def pyramid_calc_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: pyramid_calc_node ---")

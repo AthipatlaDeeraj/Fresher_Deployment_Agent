@@ -1,6 +1,6 @@
 import pandas as pd
-from fda.config import settings
-from fda.core.logger import logger
+from fda import settings
+from fda.logger import logger
 
 def load_grade_band_map(file_path: str = settings.GRADE_BAND_MAP_FILE) -> dict:
     """Loads the grade to band mapping from CSV."""

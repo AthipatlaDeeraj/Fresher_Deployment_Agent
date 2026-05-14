@@ -1,6 +1,6 @@
 from fda.services.rule_engine.base import Rule
 import pandas as pd
-from fda.config import settings
+from fda import settings
 
 class R2HighFresherIntake(Rule):
     """

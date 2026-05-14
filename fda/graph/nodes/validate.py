@@ -1,7 +1,7 @@
 from fda.graph.state import FDAState
-from fda.data.validation import filter_active_resources
-from fda.config import settings
-from fda.core.logger import logger
+from fda.validation import filter_active_resources
+from fda import settings
+from fda.logger import logger
 
 def validate_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: validate_node ---")

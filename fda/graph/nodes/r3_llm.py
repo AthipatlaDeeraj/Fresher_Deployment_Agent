@@ -1,7 +1,7 @@
 from fda.graph.state import FDAState
 from fda.llm_agents import sanitize_project_data, analyze_deployment_opportunity
 from fda.services.recommendation_engine import extract_skills_for_project
-from fda.core.logger import logger
+from fda.logger import logger
 
 def r3_llm_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: r3_llm_node ---")
@@ -25,8 +25,10 @@ def r3_llm_node(state: FDAState) -> FDAState:
         if junior_gap <= 0:
             continue # No fresher deployment needed
             
-        ris_skills = extract_skills_for_project(ris_df, project_name, ris_skill_cols)
-        so_skills = extract_skills_for_project(so_df, project_name, so_skill_cols)
+        project_ids = row.get('project_id_list', [row.get('project_id', 'N/A')])
+        logger.info(f"Project IDs for {project_name}: {project_ids}")
+        ris_skills = extract_skills_for_project(ris_df, project_ids, project_name, ris_skill_cols)
+        so_skills = extract_skills_for_project(so_df, project_ids, project_name, so_skill_cols)
         
         sanitized_data = sanitize_project_data(row, ris_skills, so_skills)
         

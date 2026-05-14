@@ -7,7 +7,7 @@ from fastapi import FastAPI, BackgroundTasks
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.append(str(BASE_DIR))
 
-from fda.core.logger import logger
+from fda.logger import logger
 from fda.graph.graph_builder import build_fda_graph
 from fda.graph.state import FDAState
 

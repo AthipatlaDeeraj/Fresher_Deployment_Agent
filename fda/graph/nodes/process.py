@@ -1,6 +1,6 @@
 from fda.graph.state import FDAState
-from fda.data.validation import map_grades_to_bands, load_grade_band_map
-from fda.core.logger import logger
+from fda.validation import map_grades_to_bands, load_grade_band_map
+from fda.logger import logger
 
 def process_node(state: FDAState) -> FDAState:
     logger.info("--- NODE: process_node ---")

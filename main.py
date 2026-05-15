@@ -1,7 +1,11 @@
 import sys
+import os
+import glob
 from pathlib import Path
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 # Ensure the root directory is in the python path so the 'fda' package can be found
 BASE_DIR = Path(__file__).resolve().parent
@@ -10,49 +14,84 @@ sys.path.append(str(BASE_DIR))
 from fda.logger import logger
 from fda.graph.graph_builder import build_fda_graph
 from fda.graph.state import FDAState
+from fda import settings
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Fresher Deployment Agent (FDA) API", 
+    title="Fresher Deployment Agent (FDA) API",
     description="API for triggering the FDA pipeline",
     version="1.0.0"
 )
 
-def run_fda_pipeline():
-    """Core pipeline logic."""
+# CORS middleware — allow frontend communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Serve the output directory as static files so the frontend can fetch Excel reports
+os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+app.mount("/output", StaticFiles(directory=str(settings.OUTPUT_DIR)), name="output")
+
+
+def run_fda_pipeline() -> dict:
+    """Core pipeline logic. Returns status and output file paths."""
     logger.info("Starting Fresher Deployment Agent (FDA) Pipeline...")
-    
+
     try:
         # Compile Graph
         logger.info("Building LangGraph...")
         graph = build_fda_graph()
-        
+
         # Initialize State
         initial_state = FDAState()
-        
+
         # Run Graph
         logger.info("Executing LangGraph Pipeline...")
         final_state = graph.invoke(initial_state)
-        
+
         logger.info("LangGraph Pipeline completed successfully.")
-        
+
+        # Find the latest output files by timestamp
+        pyramid_files = sorted(glob.glob(str(settings.OUTPUT_DIR / "FDA_PyramidReport_*.xlsx")), reverse=True)
+        suggestions_files = sorted(glob.glob(str(settings.OUTPUT_DIR / "FDA_Suggestions_*.xlsx")), reverse=True)
+
+        pyramid_path = f"/output/{Path(pyramid_files[0]).name}" if pyramid_files else None
+        suggestions_path = f"/output/{Path(suggestions_files[0]).name}" if suggestions_files else None
+
+        return {
+            "pyramid_path": pyramid_path,
+            "suggestions_path": suggestions_path,
+        }
+
     except Exception as e:
         logger.exception(f"FDA Pipeline failed with error: {str(e)}")
+        return {
+            "pyramid_path": None,
+            "suggestions_path": None,
+        }
+
 
 @app.get("/")
 def read_root():
     return {"message": "FDA API is running. Go to /docs to view the Swagger UI."}
 
+
 @app.post("/run-pipeline")
-def trigger_pipeline(background_tasks: BackgroundTasks):
-    """Triggers the FDA analysis pipeline via Swagger."""
-    background_tasks.add_task(run_fda_pipeline)
-    return {"message": "FDA Pipeline triggered successfully. Check logs and the output/ folder for results."}
+def trigger_pipeline():
+    """Runs the FDA analysis pipeline synchronously and returns output file paths."""
+    result = run_fda_pipeline()
+    return result
+
 
 def start():
     """Entry point for the application."""
     logger.info("Starting FDA API Server...")
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
 
 if __name__ == "__main__":
     start()

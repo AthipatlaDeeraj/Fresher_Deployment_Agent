@@ -119,15 +119,15 @@ export function Dashboard() {
                   <div className="space-y-8 animate-fade-in">
                     <SummaryCards summary={summary} />
                     <QuickActionPanel data={pyramidData} />
-                    
+
                     <div className="flex items-center gap-2 border-b border-white/[0.06] pb-4">
-                      <button 
+                      <button
                         onClick={() => setActiveTab("overview")}
                         className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === "overview" ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/[0.02]"}`}
                       >
                         Overview
                       </button>
-                      <button 
+                      <button
                         onClick={() => setActiveTab("analysis")}
                         className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === "analysis" ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/[0.02]"}`}
                       >
@@ -145,7 +145,7 @@ export function Dashboard() {
                           </div>
                         </div>
                       )}
-                      
+
                       {activeTab === "analysis" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <GapSeverityChart data={pyramidData} />
@@ -159,13 +159,13 @@ export function Dashboard() {
                   </div>
                 } />
 
-                
+
                 <Route path="/pyramid" element={
                   <div className="animate-fade-in">
-                    <PyramidTable 
-                      data={pyramidData} 
-                      downloadUrl={pyramidPath} 
-                      onRowClick={openModal} 
+                    <PyramidTable
+                      data={pyramidData}
+                      downloadUrl={pyramidPath}
+                      onRowClick={openModal}
                     />
                   </div>
                 } />
@@ -178,9 +178,9 @@ export function Dashboard() {
 
                 <Route path="/suggestions" element={
                   <div className="animate-fade-in">
-                    <SuggestionsTable 
-                      data={suggestionsData} 
-                      downloadUrl={suggestionsPath} 
+                    <SuggestionsTable
+                      data={suggestionsData}
+                      downloadUrl={suggestionsPath}
                       onRowClick={openModal}
                     />
                   </div>
@@ -189,10 +189,10 @@ export function Dashboard() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
 
-              <ProjectModal 
-                pyramidRow={selectedPyramidRow} 
-                suggestionRow={selectedSuggestionRow} 
-                onClose={closeModal} 
+              <ProjectModal
+                pyramidRow={selectedPyramidRow}
+                suggestionRow={selectedSuggestionRow}
+                onClose={closeModal}
               />
             </>
           )}

@@ -95,8 +95,8 @@ export function Sidebar({ hasResults, onCollapseChange }: Props) {
                 ${isActive
                   ? "bg-emerald-500/10 text-emerald-400"
                   : disabled
-                  ? "text-white/20 cursor-not-allowed"
-                  : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
+                    ? "text-white/20 cursor-not-allowed"
+                    : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
                 }
               `}
             >
